@@ -1,17 +1,56 @@
 """
 
-This module describes Yandex Delivery API models
+This module describes API objects
 
 """
 from typing import Optional, Literal, List, Tuple
-
-from pydantic import (BaseModel, PositiveInt, NonNegativeFloat, Field, HttpUrl, NonNegativeInt, StrictBool, StrictFloat
-                      )
 from typing_extensions import Annotated
+
+from pydantic import BaseModel, PositiveInt, NonNegativeFloat, Field, HttpUrl, NonNegativeInt, StrictBool, EmailStr
+
+
+class Customer(BaseModel):
+    """
+
+    This class describes customer. It's useful for on delivery payment
+
+    """
+    email: Optional[EmailStr] = None
+    inn:   Annotated[str, Field(min_length=1)]
+    phone: Annotated[str, Field(min_length=1)]
+
+
+class PaymentOnDelivery(BaseModel):
+    """
+
+    This class describes on delivery payment info
+
+    """
+    customer:       Optional[Customer] = None
+    payment_method: Literal["card", "cash"]
+
+
+class ExternalOrderCost(BaseModel):
+    """
+
+    This class describes external order cost
+
+    """
+    currency:      Annotated[str, Field(min_length=1)]
+    currency_sign: Annotated[str, Field(min_length=1)]
+    value:         Annotated[str, Field(min_length=1)]
 
 
 class Contact(BaseModel):
-    pass
+    """
+
+    This class describes contact person
+
+    """
+    email:                 Optional[EmailStr] = None
+    name:                  Annotated[str, Field(min_length=1)]
+    phone:                 Annotated[str, Field(min_length=1)]
+    phone_additional_code: Optional[str] = None
 
 
 class Buyout(BaseModel):
@@ -49,9 +88,25 @@ class Address(BaseModel):
 
 
 class RoutePoint(BaseModel):
-    address: Address
-    buyout: Optional[Buyout] = None
+    """
 
+    This class describes route point parameters
+
+    """
+    address:             Address
+    buyout:              Optional[Buyout] = None
+    contact:             Contact
+    external_order_cost: Optional[ExternalOrderCost] = None
+    external_order_id:   Optional[str] = None
+    leave_under_door:    Optional[StrictBool] = None
+    meet_outside:        Optional[StrictBool] = None
+    no_door_call:        Optional[StrictBool] = None
+    payment_on_delivery: Optional[PaymentOnDelivery] = None
+    pickup_code:         Optional[Annotated[str, Field(min_length=6, max_length=6)]] = None
+    point_id:            int  # int64
+    skip_confirmation:   Optional[StrictBool] = None
+    type:                Literal["source", "destination", "return"]
+    visit_order:         PositiveInt
 
 
 class EmergencyContact(BaseModel):
@@ -112,7 +167,7 @@ class Item(BaseModel):
     size:          ItemSize
     droppof_point: NonNegativeInt
     pickup_point:  NonNegativeInt
-    cost_currency: Annotated[str, Field(default="RUB", min_length=1)]
+    cost_currency: Annotated[str, Field(default="RUB", min_length=1)] = "RUB"
     extra_id:      Optional[str] = None
     fiscalization: Optional[str] = None
 
@@ -127,14 +182,14 @@ class Claim(BaseModel):
     callback_properties:   Optional[CallbackProperties] = None
     client_requirements:   Optional[ClientRequirements] = None
     comment:               Optional[str] = None
-    due:                   None  # TODO
+    due:                   None = None  # TODO
     emergency_contact:     Optional[EmergencyContact] = None
     items:                 List[Item]
     offer_payload:         Optional[str] = None
     optional_return:       Optional[StrictBool] = None
     referral_source:       Optional[str] = None
-    route_points:          List[None]  # TODO
-    same_day_data:         None  # TODO
+    route_points:          List[RoutePoint]
+    same_day_data:         None = None  # TODO
     shipping_document:     Optional[str] = None
     skip_act:              Optional[StrictBool] = None
     skip_client_notify:    Optional[StrictBool] = None

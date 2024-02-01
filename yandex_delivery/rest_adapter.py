@@ -9,11 +9,11 @@ from .rest_result import Result
 
 class RestAdapter:
     def __init__(self,
-                 hostname: str = 'b2b.taxi.yandex.net/b2b/cargo/integration',
-                 api_key: str = '',
-                 ver: str = 'v2',
-                 content_type: str = "'content-type': 'application/json', 'Accept-Language': 'ru'",
-                 logger: logging.Logger = None):
+                 hostname:     str,
+                 api_key:      str,
+                 ver:          str,
+                 content_type: str,
+                 logger:       logging.Logger = None):
         """
 
         RestAdapter Constructor
@@ -31,9 +31,9 @@ class RestAdapter:
 
     async def _do(self,
                   http_method: str,
-                  endpoint: str,
-                  params: dict = None,
-                  payload: dict = None) -> Result:
+                  endpoint:    str,
+                  params:      dict = None,
+                  payload:     dict = None) -> Result:
         """
 
         REST operations common method
