@@ -1,6 +1,6 @@
 """
 
-This module API class
+This module describes API class26
 
 """
 
