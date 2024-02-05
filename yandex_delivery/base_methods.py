@@ -1,12 +1,15 @@
 """
 
-This module describes API objects
+This module describes API objects for API Base Methods
 
 """
 from typing import Optional, Literal, List, Tuple
 from typing_extensions import Annotated
 
-from pydantic import BaseModel, PositiveInt, NonNegativeFloat, Field, HttpUrl, NonNegativeInt, StrictBool, EmailStr
+from pydantic import (BaseModel, PositiveInt, NonNegativeFloat,
+                      Field, HttpUrl, NonNegativeInt,
+                      StrictBool, EmailStr, field_validator)
+from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
 class Customer(BaseModel):
@@ -16,8 +19,8 @@ class Customer(BaseModel):
 
     """
     email: Optional[EmailStr] = None
-    inn:   Annotated[str, Field(min_length=1)]
-    phone: Annotated[str, Field(min_length=1)]
+    inn:   Optional[str] = None
+    phone: Optional[Annotated[str, PhoneNumber]] = None
 
 
 class PaymentOnDelivery(BaseModel):
@@ -49,7 +52,7 @@ class Contact(BaseModel):
     """
     email:                 Optional[EmailStr] = None
     name:                  Annotated[str, Field(min_length=1)]
-    phone:                 Annotated[str, Field(min_length=1)]
+    phone:                 Annotated[str, PhoneNumber]
     phone_additional_code: Optional[str] = None
 
 
@@ -116,14 +119,15 @@ class EmergencyContact(BaseModel):
 
     """
     name:                  Annotated[str, Field(min_length=1)]
-    phone:                 Annotated[str, Field(min_length=1)]
+    phone:                 Annotated[str, PhoneNumber]
     phone_additional_code: Optional[str] = None
 
 
 class ClientRequirements(BaseModel):
     """
 
-    This class describes client requirements, these requirements are necessary to create or edit claim
+    This class describes client requirements, these requirements are
+    necessary to create or edit claim
 
     """
     assign_robot:  Optional[StrictBool] = None
@@ -163,13 +167,32 @@ class Item(BaseModel):
     """
     title:         Annotated[str, Field(min_length=1)]
     quantity:      PositiveInt
-    cost_value:    NonNegativeFloat
+    cost_value:    Annotated[str | float, Field(ge=0)]
     size:          ItemSize
     droppof_point: NonNegativeInt
     pickup_point:  NonNegativeInt
     cost_currency: Annotated[str, Field(default="RUB", min_length=1)] = "RUB"
     extra_id:      Optional[str] = None
     fiscalization: Optional[str] = None
+    weight:        Optional[NonNegativeFloat] = None
+
+    @classmethod
+    @field_validator("cost_value", mode="before")
+    def convert_to_float(cls, value):
+        """
+        Any to float
+        """
+        if not isinstance(value, float):
+            return float(value)
+        return value
+
+    @classmethod
+    @field_validator("cost_value", mode="after")
+    def convert_to_string(cls, value):
+        """
+        Any to string
+        """
+        return str(value)
 
 
 class Claim(BaseModel):
@@ -184,7 +207,7 @@ class Claim(BaseModel):
     comment:               Optional[str] = None
     due:                   None = None  # TODO
     emergency_contact:     Optional[EmergencyContact] = None
-    items:                 List[Item]
+    items:                 Optional[List[Item]] = None
     offer_payload:         Optional[str] = None
     optional_return:       Optional[StrictBool] = None
     referral_source:       Optional[str] = None

@@ -9,4 +9,3 @@ class YandexDeliveryApiError(Exception):
     """
     This error occurs in case of API problems
     """
-    pass
