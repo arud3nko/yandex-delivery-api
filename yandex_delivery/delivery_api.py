@@ -136,8 +136,8 @@ class YandexDeliveryApi:
         https://yandex.ru/dev/logistics/api/ref/performer-info/IntegrationV2DriverVoiceForwarding.html
         """
         return await self._rest_adapter.post(endpoint="/driver-voiceforwarding",
-                                             params={"claim_id": claim_id,
-                                                     "point_id": point_id} if point_id
+                                             payload={"claim_id": claim_id,
+                                                      "point_id": point_id} if point_id
                                              else {"claim_id": claim_id})
 
     async def performer_position(self,
@@ -149,7 +149,7 @@ class YandexDeliveryApi:
 
         https://yandex.ru/dev/logistics/api/ref/performer-info/IntegrationV2ClaimsPerformerPosition.html
         """
-        return await self._rest_adapter.get(endpoint="/performer-position",
+        return await self._rest_adapter.get(endpoint="/claims/performer-position",
                                             params={"claim_id": claim_id})
 
     async def tracking_links(self,
@@ -161,5 +161,5 @@ class YandexDeliveryApi:
 
         https://yandex.ru/dev/logistics/api/ref/performer-info/IntegrationV2ClaimsTrackingLinks.html
         """
-        return await self._rest_adapter.get(endpoint="/tracking-links",
+        return await self._rest_adapter.get(endpoint="/claims/tracking-links",
                                             params={"claim_id": claim_id})

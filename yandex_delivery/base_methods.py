@@ -176,7 +176,6 @@ class Item(BaseModel):
     fiscalization: Optional[str] = None
     weight:        Optional[NonNegativeFloat] = None
 
-    @classmethod
     @field_validator("cost_value", mode="before")
     def convert_to_float(cls, value):
         """
@@ -186,7 +185,6 @@ class Item(BaseModel):
             return float(value)
         return value
 
-    @classmethod
     @field_validator("cost_value", mode="after")
     def convert_to_string(cls, value):
         """
