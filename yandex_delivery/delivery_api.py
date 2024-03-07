@@ -26,12 +26,16 @@ class YandexDeliveryApi:
                  ver:             str = "v2",
                  content_type:    str = "application/json",
                  accept_language: str = "ru",
+                 retries:         int = 0,
+                 timeout:         int | None = 5,
                  logger:          logging.Logger = None):
         self._rest_adapter = RestAdapter(hostname=hostname,
                                          api_key=api_key,
                                          ver=ver,
                                          content_type=content_type,
                                          accept_language=accept_language,
+                                         retries=retries,
+                                         timeout=timeout,
                                          logger=logger)
 
     async def __aenter__(self):

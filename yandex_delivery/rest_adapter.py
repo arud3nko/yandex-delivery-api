@@ -25,7 +25,9 @@ class RestAdapter:
                  ver:             str,
                  content_type:    str,
                  accept_language: str,
-                 logger:       logging.Logger = None):
+                 timeout:         int = None,
+                 retries:         int = 0,
+                 logger:          logging.Logger = None):
         """
 
         RestAdapter Constructor
@@ -35,6 +37,8 @@ class RestAdapter:
         :param ver: API version
         :param content_type: Content-Type header
         :param accept_language: Accept-Language header
+        :param timeout: Timeout in seconds / None to request without timeout
+        :param retries: Additional attempts
         :param logger: (optional) logger instance
         """
         self._logger = logger or logging.getLogger(__package__)
@@ -42,6 +46,8 @@ class RestAdapter:
         self.content_type = content_type
         self.accept_language = accept_language
         self._api_key = api_key
+        self._timeout = aiohttp.ClientTimeout(total=timeout)
+        self._retries = retries
 
     async def _do(self,
                   http_method: str,
@@ -64,25 +70,32 @@ class RestAdapter:
         log_line_pre = f"method={http_method}, url={full_url}, params={params}"
         log_line_post = ', '.join((log_line_pre, "success={}, status_code={}, message={}"))
 
-        try:
-            self._logger.debug(msg=log_line_pre)
-            async with aiohttp.ClientSession(headers=headers) as session:
-                response = await session.request(
-                    method=http_method,
-                    url=self.url + endpoint,
-                    params=params,
-                    json=payload
-                )
+        for _ in range(1 + self._retries):
+            try:
+                self._logger.debug(msg=log_line_pre)
+                async with aiohttp.ClientSession(headers=headers, timeout=self._timeout) as session:
+                    response = await session.request(
+                        method=http_method,
+                        url=self.url + endpoint,
+                        params=params,
+                        json=payload
+                    )
 
-        except aiohttp.ClientError as e:
-            self._logger.error(msg=str(e))
-            raise YandexDeliveryApiError("Request failed") from e
+                    try:
+                        data_out = await response.json()
+                    except (ValueError, TypeError, JSONDecodeError) as e:
+                        self._logger.error(msg=log_line_post.format(False, None, e))
+                        raise YandexDeliveryApiError("Bad JSON in response") from e
 
-        try:
-            data_out = await response.json()
-        except (ValueError, TypeError, JSONDecodeError) as e:
-            self._logger.error(msg=log_line_post.format(False, None, e))
-            raise YandexDeliveryApiError("Bad JSON in response") from e
+                break
+            except aiohttp.ClientError as e:
+                self._logger.error(msg=str(e))
+                raise YandexDeliveryApiError("Request failed") from e
+            except (TimeoutError, aiohttp.ServerTimeoutError) as e:
+                self._logger.error(msg=str(e))
+                if _ >= self._retries:
+                    raise YandexDeliveryApiError("Timeout error") from e
+                continue
 
         is_success = 299 >= response.status >= 200
         if is_success:
