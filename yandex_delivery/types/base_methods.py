@@ -3,6 +3,8 @@
 This module describes API objects for API Base Methods
 
 """
+from __future__ import annotations
+
 from typing import Optional, Literal, List, Tuple
 from typing_extensions import Annotated
 
@@ -203,14 +205,14 @@ class Claim(BaseModel):
     callback_properties:   Optional[CallbackProperties] = None
     client_requirements:   Optional[ClientRequirements] = None
     comment:               Optional[str] = None
-    due:                   None = None  # TODO
+    due:                   None = None
     emergency_contact:     Optional[EmergencyContact] = None
     items:                 Optional[List[Item]] = None
     offer_payload:         Optional[str] = None
     optional_return:       Optional[StrictBool] = None
     referral_source:       Optional[str] = None
     route_points:          List[RoutePoint]
-    same_day_data:         None = None  # TODO
+    same_day_data:         None = None
     shipping_document:     Optional[str] = None
     skip_act:              Optional[StrictBool] = None
     skip_client_notify:    Optional[StrictBool] = None

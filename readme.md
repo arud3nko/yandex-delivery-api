@@ -1,31 +1,66 @@
 
 # yandex-delivery
+![Static Badge](https://img.shields.io/badge/API-v2-green?style=flat-square)
+![Static Badge](https://img.shields.io/badge/master-v1.0.4-green?style=flat-square&logo=github)
+![PyPI - Version](https://img.shields.io/pypi/v/yandex-delivery-api?style=flat-square&logo=pypi&logoColor=yellow&color=darkgoldenrod)
 
-This library is a Python wrapper for Yandex Delivery API. 
+![Static Badge](https://img.shields.io/badge/status-WIP-yellow?style=flat)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/arud3nko/yandex-delivery-api?style=flat-square)
+
+![GitHub Repo stars](https://img.shields.io/github/stars/arud3nko/yandex-delivery-api)
 
 Эта библиотека является Python оберткой для API Яндекс.Доставки.
+
 ## Features
 
-- Async code (sync will be supported in the future) / Асинхронный код. Синхронный будет поддерживаться позднее
-- Common API methods covered / Покрытие основных методов API
-- Strict type annotation / Строгая аннотация типов
-- Documentated methods with useful how-to links / Код документирован с полезными ссылками
-- IDE autocompleting support / Подсказки в IDE
+- Асинхронный код. Синхронный будет поддерживаться позднее
+- Покрытие часто используемых методов API
+- Строгая аннотация типов
+- Код документирован с полезными ссылками
+- Подсказки в IDE
+
+
+### О несоответствии новой документации API Яндкес Доставки
+В данный момент существует две версии документаций к сервису доставки:
+- Старая версия
+```
+https://yandex.com/dev/logistics/api/ref/basic.html
+```
+- Новая версия
+```
+https://yandex.ru/support2/delivery-profile/ru/api/express/overview
+```
+
+Библиотека разрабатывалась, когда старая версия документации была основной, однако сейчас все пути ведут на новую версию. 
+
+Однако, старые методы и модели данных работают и остаются актуальными.
+
+Я продолжаю доработку библиотеки в соответствии с новой версией документации, изменения постепенно вносятся.
+
+Методы и модели данных, соответсвующие новой документации доступны в модулях:
+```yandex_delivery.api_v2```, ```yandex_delivery.types.v2```
 
 
 ## Installation
 
-Insttall by cloning the repo and installing dependencies from requirements.txt
-
 Установите, клонировав репозиторий и установив зависимости из файла requirements.txt
+
+```
+git clone https://github.com/arud3nko/yandex-delivery-api
+```
+```
+pip install -r requirements.txt
+```
     
-## Usage
+## Usage example (старая версия)
 
 ```python
 import asyncio
 
 from yandex_delivery import YandexDeliveryApi
-from yandex_delivery.base_methods import ItemSize, Item, Address, Contact, RoutePoint, Claim, ClientRequirements
+from yandex_delivery.types.base_methods import Address, Contact, RoutePoint, Claim, ClientRequirements
+from yandex_delivery.types.item_sizes import ItemSize
+from yandex_delivery.types.item import Item
 
 
 async def main():
@@ -68,6 +103,7 @@ async def main():
     async with YandexDeliveryApi(api_key="1234567890abcdefg") as api:
         result = await api.create(claim)
         print(result.data)
+
 
 if __name__ == '__main__':
     asyncio.run(main())

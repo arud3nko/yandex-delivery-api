@@ -1,17 +1,19 @@
 """
 
-This module describes API class26
+This module describes API class
 
 """
+from __future__ import annotations
 
 import logging
 import uuid
 
-from typing import Literal
+from typing import Literal, List, Optional
 
-from .base_methods import Claim
-from .rest_adapter import RestAdapter
-from .rest_result import Result
+from yandex_delivery.types import Claim
+from yandex_delivery.types.v2 import Item, RoutePointWithAddress, OfferRequirements
+
+from .rest import RestAdapter, Result
 
 
 class YandexDeliveryApi:
@@ -27,8 +29,8 @@ class YandexDeliveryApi:
                  content_type:    str = "application/json",
                  accept_language: str = "ru",
                  retries:         int = 0,
-                 timeout:         int | None = 5,
-                 logger:          logging.Logger = None):
+                 timeout:         Optional[int] = 5,
+                 logger:          Optional[logging.Logger] = None):
         self._rest_adapter = RestAdapter(hostname=hostname,
                                          api_key=api_key,
                                          ver=ver,
@@ -167,3 +169,25 @@ class YandexDeliveryApi:
         """
         return await self._rest_adapter.get(endpoint="/claims/tracking-links",
                                             params={"claim_id": claim_id})
+
+    async def calculate(self,
+                        route_points: List[RoutePointWithAddress],
+                        items:        List[Item] = None,
+                        requirements: OfferRequirements = None):
+        """
+        Получение вариантов доставки (для РФ)
+        Метод возвращает доступные варианты доставки.
+        Каждый вариант содержит цену, временной интервал забора посылки на точке А,
+        временной интервал доставки на точку B.
+        После получения вариантов доставки можно выбрать оптимальный и создать заказ с
+        использованием выбранного варианта.
+        Получить варианты доставки можно только в России.
+
+        Source: https://yandex.ru/support2/delivery-profile/ru/api/express/openapi/IntegrationV2OfferCalculate
+        """
+        return await self._rest_adapter.post(endpoint="/offers/calculate",
+                                             payload={"items": items,
+                                                      "route_points": [x.model_dump(mode="json", exclude_none=True)
+                                                                       for x in route_points],
+                                                      "requirements": requirements.model_dump(mode="json",
+                                                                                              exclude_none=True)})

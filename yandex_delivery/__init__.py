@@ -2,12 +2,15 @@
 
 This library is an API wrapper for Yandex Delivery
 
+v2.x (new schemas) is not fully supported
+
 Author: Egor Udalov
-Latest version: 1.0.1
+Latest version: 0.3.1
 
 Quickstart guide: https://yandex.ru/dev/logistics/api/about/quickstart.html
 
 """
 
-from .delivery_api import YandexDeliveryApi
-from . import base_methods
+from .api import YandexDeliveryApi
+
+from .types import base_methods

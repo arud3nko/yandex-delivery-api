@@ -1,7 +1,7 @@
 import asyncio
 
 from yandex_delivery import YandexDeliveryApi
-from yandex_delivery.base_methods import ItemSize, Item, Address, Contact, RoutePoint, Claim, ClientRequirements
+from yandex_delivery.types import Address, Contact, RoutePoint, Claim, ClientRequirements, Item, ItemSize
 
 
 async def main():
@@ -47,3 +47,4 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+    
