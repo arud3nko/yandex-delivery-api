@@ -58,9 +58,7 @@ pip install -r requirements.txt
 import asyncio
 
 from yandex_delivery import YandexDeliveryApi
-from yandex_delivery.types.base_methods import Address, Contact, RoutePoint, Claim, ClientRequirements
-from yandex_delivery.types.item_sizes import ItemSize
-from yandex_delivery.types.item import Item
+from yandex_delivery.types import Address, Contact, RoutePoint, Claim, ClientRequirements, Item, ItemSize
 
 
 async def main():
@@ -104,12 +102,9 @@ async def main():
         result = await api.create(claim)
         print(result.data)
 
-
 if __name__ == '__main__':
     asyncio.run(main())
 ```
-
-Больше примеров можно найти в директории examples
 
 ## Documentation
 
